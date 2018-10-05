@@ -1,11 +1,13 @@
 package slick
 
-import scalaz.MonadError
+import scalaz.{EitherT, MonadError}
 import slick.dbio.DBIO
 
 import scala.concurrent.ExecutionContext
 
 package object dbioz {
+  type DBIOEitherT[A, B] = EitherT[DBIO, A, B]
+
   implicit def dbioMonadError(implicit executionContext: ExecutionContext): MonadError[DBIO, Throwable] = new MonadError[DBIO, Throwable] {
     override def point[A](a: => A): DBIO[A] = DBIO.successful(a)
     override def bind[A, B](fa: DBIO[A])(f: A => DBIO[B]): DBIO[B] = fa flatMap f
